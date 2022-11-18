@@ -40,8 +40,32 @@
 #include "MKL25Z4.h"
 #include "fsl_debug_console.h"
 /* TODO: insert other include files here. */
+#include "adc.h"
+#include "dac.h"
+#include "dma.h"
+#include "sine.h"
+#include "systick.h"
+#include "test_sine.h"
 
-/* TODO: insert other definitions and declarations here. */
+/**
+ * \def		BUF_ADC_SIZE
+ * \brief	Size of audio out buffer
+ */
+#define BUF_ADC_SIZE\
+	(1024)
+
+/**
+ * \def		SAMPLE_COUNT_ADC
+ * \brief	The number of samples to transfer at a time
+ */
+#define SAMPLE_COUNT_ADC\
+	(100)
+
+/**
+ * \var		buf_adc
+ * \brief	Buffer to hold audio out data
+ */
+uint8_t buf_adc[BUF_ADC_SIZE];
 
 /*
  * @brief   Application entry point.
@@ -57,16 +81,51 @@ int main(void) {
     BOARD_InitDebugConsole();
 #endif
 
-    PRINTF("Hello World\n");
+    /**
+     * Initialize on-board DAC
+     */
+    init_onboard_dac();
 
-    /* Force the counter to be placed into memory. */
-    volatile static int i = 0 ;
-    /* Enter an infinite loop, just incrementing a counter. */
+    /**
+     * Initialize on-board ADC
+     */
+    init_onboard_adc();
+
+    /**
+     * Initialize on-board DMA
+     */
+    init_onboard_dma(buf_adc, SAMPLE_COUNT_ADC);
+
+    /**
+     * Initialize SysTick on-board timer
+     */
+    init_onboard_systick();
+
+    /**
+     * Main infinite loop
+     */
     while(1) {
-        i++ ;
-        /* 'Dummy' NOP to allow source level single stepping of
-            tight while() loop */
-        __asm volatile ("nop");
+
+        /**
+         * Set by SysTick_Handler every TICK_SEC
+         */
+        if(tick){
+
+            /**
+             * Reset flag that was set by SysTick ISR
+             */
+        	tick = false;
+
+            /**
+             * Increment for timestamp purposes
+             */
+        	ticks_since_startup++;
+
+            /**
+             * Increment for timing purposes
+             */
+        	ticks_since_last_note++;
+        }
     }
     return 0 ;
 }

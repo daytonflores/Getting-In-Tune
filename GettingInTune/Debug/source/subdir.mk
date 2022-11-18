@@ -4,30 +4,42 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../source/adc.c \
 ../source/autocorrelate.c \
+../source/dac.c \
+../source/dma.c \
 ../source/main.c \
 ../source/mtb.c \
 ../source/semihost_hardfault.c \
 ../source/sine.c \
+../source/systick.c \
 ../source/test_sine.c 
 
 O_SRCS += \
 ../source/fp_trig.o 
 
 C_DEPS += \
+./source/adc.d \
 ./source/autocorrelate.d \
+./source/dac.d \
+./source/dma.d \
 ./source/main.d \
 ./source/mtb.d \
 ./source/semihost_hardfault.d \
 ./source/sine.d \
+./source/systick.d \
 ./source/test_sine.d 
 
 OBJS += \
+./source/adc.o \
 ./source/autocorrelate.o \
+./source/dac.o \
+./source/dma.o \
 ./source/main.o \
 ./source/mtb.o \
 ./source/semihost_hardfault.o \
 ./source/sine.o \
+./source/systick.o \
 ./source/test_sine.o 
 
 
@@ -43,7 +55,7 @@ source/%.o: ../source/%.c source/subdir.mk
 clean: clean-source
 
 clean-source:
-	-$(RM) ./source/autocorrelate.d ./source/autocorrelate.o ./source/main.d ./source/main.o ./source/mtb.d ./source/mtb.o ./source/semihost_hardfault.d ./source/semihost_hardfault.o ./source/sine.d ./source/sine.o ./source/test_sine.d ./source/test_sine.o
+	-$(RM) ./source/adc.d ./source/adc.o ./source/autocorrelate.d ./source/autocorrelate.o ./source/dac.d ./source/dac.o ./source/dma.d ./source/dma.o ./source/main.d ./source/main.o ./source/mtb.d ./source/mtb.o ./source/semihost_hardfault.d ./source/semihost_hardfault.o ./source/sine.d ./source/sine.o ./source/systick.d ./source/systick.o ./source/test_sine.d ./source/test_sine.o
 
 .PHONY: clean-source
 
