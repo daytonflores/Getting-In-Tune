@@ -43,7 +43,7 @@
 #include "adc.h"
 #include "dac.h"
 #include "dma.h"
-#include "sine.h"
+#include "fp_trig.h"
 #include "systick.h"
 #include "test_sine.h"
 
@@ -80,6 +80,11 @@ int main(void) {
     /* Init FSL debug console. */
     BOARD_InitDebugConsole();
 #endif
+
+    /**
+     *
+     */
+    test_sin();
 
     /**
      * Initialize on-board DAC

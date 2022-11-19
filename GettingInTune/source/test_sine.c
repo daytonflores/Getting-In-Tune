@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "sine.h"
+#include "fp_trig.h"
 #include "test_sine.h"
 
 /*
