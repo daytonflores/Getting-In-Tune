@@ -19,6 +19,37 @@
 #include "systick.h"
 
 /**
+ * \def		MSEC_PER_SEC
+ * \brief	Used for unit conversions
+ */
+#define MSEC_PER_SEC\
+	(1000)
+
+/**
+ * \def		PRIM_CLOCK_HZ
+ * \brief	Frequency of primary processor clock source in Hz. For KL25Z, this is 48 MHz
+ */
+#define PRIM_CLOCK_HZ\
+	(48000000UL)
+
+/**
+ * \def		ALT_CLOCK_HZ
+ * \brief	Frequency of alternate clock source in Hz. For KL25Z, this is 3 MHz
+ */
+#define ALT_CLOCK_HZ\
+	(3000000UL)
+
+/**
+ * \def		SysTick_CTRL_CLKSOURCE_EXT_Msk
+ * \brief	The CLKSOURCE field selects the clock source, which can be either the processor
+ * 			clock (1) or an external reference clock (0). On the KL25Z MCU, the processor
+ * 			clock runs at up to 48 MHz, and the external reference clock is the processor clock
+ * 			divided by 16
+ */
+#define SysTick_CTRL_CLKSOURCE_EXT_Msk\
+	(0UL << SysTick_CTRL_CLKSOURCE_Pos)
+
+/**
  * \var		ticktime_t ticks_since_startup
  * \brief	Ticks since boot
  */

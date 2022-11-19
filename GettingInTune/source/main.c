@@ -82,11 +82,6 @@ int main(void) {
 #endif
 
     /**
-     *
-     */
-    test_sin();
-
-    /**
      * Initialize on-board DAC
      */
     init_onboard_dac();
@@ -107,6 +102,11 @@ int main(void) {
     init_onboard_systick();
 
     /**
+     * Test sin function generated from given fp_trig.o
+     */
+    test_sin();
+
+    /**
      * Main infinite loop
      */
     while(1) {
@@ -125,11 +125,28 @@ int main(void) {
              * Increment for timestamp purposes
              */
         	ticks_since_startup++;
+        	//printf("Sec since startup = %f\r\n", ticks_since_startup * TICK_SEC);
 
             /**
-             * Increment for timing purposes
+             * Increment for note timing purposes
              */
         	ticks_since_last_note++;
+    		//printf("Sec since last note = %f\r\n", ticks_since_last_note * TICK_SEC);
+
+        	/**
+        	 * Check if a full second has passed since current note started
+        	 */
+        	if(!(ticks_since_last_note & (TICK_HZ - 1))){
+
+                /**
+                 * Reset for note timing purposes
+                 */
+        		ticks_since_last_note = 0;
+
+        		/**
+        		 * Change note
+        		 */
+        	}
         }
     }
     return 0 ;
