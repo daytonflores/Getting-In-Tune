@@ -70,10 +70,10 @@
 uint16_t buf_adc[BUF_ADC_SIZE];
 
 /**
- * \var		current_note
- * \brief	The current_note to be send out to DAC
+ * \var		current_tone
+ * \brief	The current_tone to be send out to DAC
  */
-tone_t current_note = A4;
+tone_t current_tone = A4;
 
 /**
  * \fn		int main
@@ -130,7 +130,15 @@ int main(void) {
     /**
      * Stuff DAC buffer with initial tone's samples until DAC buffer is full
      */
-    fill_dac_buffer(current_note);
+    fill_dac_buffer(current_tone);
+
+    /**
+     * Print info about current tone
+     */
+    printf("Generated %d samples at %d Hz. Computed period = %d samples\r\n",
+    		dac_buffer_full_periods * dac_buffer_samples_per_period,
+			dac_buffer_hz,
+			dac_buffer_samples_per_period);
 
     /**
      * Main infinite loop
@@ -172,18 +180,18 @@ int main(void) {
         		/**
         		 * Change note
         		 */
-        		switch(current_note){
+        		switch(current_tone){
         		case A4:
-        			current_note = D5;
+        			current_tone = D5;
         			break;
         		case D5:
-        			current_note = E5;
+        			current_tone = E5;
         			break;
         		case E5:
-        			current_note = A5;
+        			current_tone = A5;
         			break;
         		case A5:
-        			current_note = A4;
+        			current_tone = A4;
         			break;
         		default:
         			break;
@@ -192,7 +200,15 @@ int main(void) {
         	    /**
         	     * Stuff DAC buffer with tone's samples until DAC buffer is full
         	     */
-        	    fill_dac_buffer(current_note);
+        	    fill_dac_buffer(current_tone);
+
+        	    /**
+        	     * Print info about current tone
+        	     */
+        	    printf("Generated %d samples at %d Hz. Computed period = %d samples\r\n",
+        	    		dac_buffer_full_periods * dac_buffer_samples_per_period,
+						dac_buffer_hz,
+						dac_buffer_samples_per_period);
         	}
         }
     }

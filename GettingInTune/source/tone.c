@@ -138,10 +138,22 @@ int32_t samples_a5[SAMPLES_PER_PERIOD_A5];
 int32_t dac_buffer[DAC_BUF_SIZE];
 
 /**
+ * \var		dac_buffer_samples_per_period
+ * \brief	Tracks how many samples per period are contained in dac_buffer
+ */
+int32_t dac_buffer_samples_per_period;
+
+/**
  * \var		dac_buffer_full_periods
  * \brief	Tracks how many full periods are contained in dac_buffer
  */
 int32_t dac_buffer_full_periods;
+
+/**
+ * \var		dac_buffer_hz
+ * \brief	Tracks frequency of tone contained in dac_buffer
+ */
+int32_t dac_buffer_hz;
 
 void tone_to_samples(void)
 {
@@ -214,6 +226,8 @@ void fill_dac_buffer(tone_t tone)
 	 * Copy A4 samples into DAC buffer until it is filled up
 	 */
 	case A4:
+		dac_buffer_samples_per_period = SAMPLES_PER_PERIOD_A4;
+		dac_buffer_hz = A4_HZ;
 		for(i = 0, j = 0; i < DAC_BUF_SIZE; i++, j++){
 			if(j >= SAMPLES_PER_PERIOD_A4){
 				j = 0;
@@ -229,6 +243,8 @@ void fill_dac_buffer(tone_t tone)
 	 * Copy D5 samples into DAC buffer until it is filled up
 	 */
 	case D5:
+		dac_buffer_samples_per_period = SAMPLES_PER_PERIOD_D5;
+		dac_buffer_hz = D5_HZ;
 		for(i = 0, j = 0; i < DAC_BUF_SIZE; i++, j++){
 			if(j >= SAMPLES_PER_PERIOD_D5){
 				j = 0;
@@ -244,6 +260,8 @@ void fill_dac_buffer(tone_t tone)
 	 * Copy E5 samples into DAC buffer until it is filled up
 	 */
 	case E5:
+		dac_buffer_samples_per_period = SAMPLES_PER_PERIOD_E5;
+		dac_buffer_hz = E5_HZ;
 		for(i = 0, j = 0; i < DAC_BUF_SIZE; i++, j++){
 			if(j >= SAMPLES_PER_PERIOD_E5){
 				j = 0;
@@ -259,6 +277,8 @@ void fill_dac_buffer(tone_t tone)
 	 * Copy A5 samples into DAC buffer until it is filled up
 	 */
 	case A5:
+		dac_buffer_samples_per_period = SAMPLES_PER_PERIOD_A5;
+		dac_buffer_hz = A5_HZ;
 		for(i = 0, j = 0; i < DAC_BUF_SIZE; i++, j++){
 			if(j >= SAMPLES_PER_PERIOD_A5){
 				j = 0;
