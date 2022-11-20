@@ -36,7 +36,8 @@ enum tone_e{
  * \var		dac_buffer
  * \brief	Defined in tone.c
  */
-extern int32_t dac_buffer[DAC_BUF_SIZE];
+extern int16_t dac_buffer[DAC_BUF_SIZE];
+extern int16_t dac_buffer_test[DAC_BUF_SIZE];
 
 /**
  * \var		dac_buffer_samples_per_period
@@ -55,6 +56,12 @@ extern int32_t dac_buffer_full_periods;
  * \brief	Defined in tone.c
  */
 extern int32_t dac_buffer_hz;
+
+/**
+ * \var		dac_buffer_samples
+ * \brief	Defined in tone.c
+ */
+extern int32_t dac_buffer_samples;
 
 /**
  * \fn		void tone_to_samples

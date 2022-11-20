@@ -11,13 +11,6 @@
 #include "tone.h"
 
 /**
- * \def		SAMPLE_RATE_DAC_HZ
- * \brief	The sampling rate for DAC in Hz
- */
-#define SAMPLE_RATE_DAC_HZ\
-	(48000)
-
-/**
  * \def		SIN_MIN_DEGREES
  * \brief	The min degrees for sin function
  */
@@ -135,7 +128,8 @@ int32_t samples_a5[SAMPLES_PER_PERIOD_A5];
  * \var		dac_buffer
  * \brief	Buffer to hold samples for DMA's source
  */
-int32_t dac_buffer[DAC_BUF_SIZE];
+int16_t dac_buffer[DAC_BUF_SIZE];
+int16_t dac_buffer_test[DAC_BUF_SIZE];
 
 /**
  * \var		dac_buffer_samples_per_period
@@ -154,6 +148,12 @@ int32_t dac_buffer_full_periods;
  * \brief	Tracks frequency of tone contained in dac_buffer
  */
 int32_t dac_buffer_hz;
+
+/**
+ * \var		dac_buffer_samples
+ * \brief	Tracks number of samples in dac_buffer (full periods only)
+ */
+int32_t dac_buffer_samples;
 
 void tone_to_samples(void)
 {
@@ -237,6 +237,7 @@ void fill_dac_buffer(tone_t tone)
 			dac_buffer[i] = samples_a4[j];
 			//printf("a4 %d %d\r\n", i, dac_buffer[i]);
 		}
+		dac_buffer_samples = dac_buffer_samples_per_period * dac_buffer_full_periods;
 		break;
 
 	/**
@@ -254,6 +255,7 @@ void fill_dac_buffer(tone_t tone)
 			dac_buffer[i] = samples_d5[j];
 			//printf("d5 %d %d\r\n", i, dac_buffer[i]);
 		}
+		dac_buffer_samples = dac_buffer_samples_per_period * dac_buffer_full_periods;
 		break;
 
 	/**
@@ -271,6 +273,7 @@ void fill_dac_buffer(tone_t tone)
 			dac_buffer[i] = samples_e5[j];
 			//printf("e5 %d %d\r\n", i, dac_buffer[i]);
 		}
+		dac_buffer_samples = dac_buffer_samples_per_period * dac_buffer_full_periods;
 		break;
 
 	/**
@@ -288,6 +291,7 @@ void fill_dac_buffer(tone_t tone)
 			dac_buffer[i] = samples_a5[j];
 			//printf("a5 %d %d\r\n", i, dac_buffer[i]);
 		}
+		dac_buffer_samples = dac_buffer_samples_per_period * dac_buffer_full_periods;
 		break;
 
 	/**

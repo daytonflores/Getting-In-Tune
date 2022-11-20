@@ -15,12 +15,75 @@
 #include "tpm.h"
 
 /**
+ * \def		MAX_TPM_MOD_VALUE
+ * \brief	The max division factor for 16-bit TPM->MOD register
+ */
+#define MAX_TPM_MOD_VALUE\
+	(65536)
+
+/**
+ * \def		TPM_CLOCK_SRC
+ * \brief	Configuration for TPM clock source select
+ * \detail
+ * 		0: Disabled
+ * 		1: MCGFLLCLK (or MCGPLLCLK / 2)
+ * 		2: OSCERCLK
+ * 		3: MCGIRCLK
+ */
+#define TPM_CLOCK_SRC\
+	(1)
+
+/**
+ * \def		TPM_DBGMODE
+ * \brief	Configuration for TPM debug mode
+ * \detail
+ * 		0: LPTPM counter does not increment during debug. Trigger inputs and input capture events
+ * 		   are also ignored
+ * 		3: LPTPM counter continues to increment in debug mode
+ */
+#define TPM_DBGMODE\
+	(3)
+
+/**
+ * \def		F_TPM_CLOCK_HZ
+ * \brief	The frequency of TPM clock in Hz
+ */
+#define F_TPM_CLOCK_HZ\
+	(48000000)
+
+/**
+ * \def		SC_DMA
+ * \brief	DMA Enable
+ * \detail
+ * 		0: Disables DMA transfers
+ * 		1: Enables DMA transfers for the overflow flag
+ */
+#define SC_DMA\
+	(1)
+
+/**
+ * \def		SC_PS
+ * \brief	Prescale Factor Selection
+ * \detail
+ * 		000: Divide by 1
+ * 		001: Divide by 2
+ * 		010: Divide by 4
+ * 		011: Divide by 8
+ * 		100: Divide by 16
+ * 		101: Divide by 32
+ * 		110: Divide by 64
+ * 		111: Divide by 128
+ */
+#define SC_PS\
+	(1)
+
+/**
  * \var		uint8_t tpm_sc_ps;
  * \brief	Holds x for 2^x, where 2^x is the tpm_prescaler
  */
 uint8_t tpm_sc_ps;
 
-void init_onboard_tpm(void)
+void init_onboard_tpm(uint32_t period_us)
 {
 	/**
 	 * Enable clock to TPM module
@@ -37,20 +100,28 @@ void init_onboard_tpm(void)
 		SIM_SOPT2_PLLFLLSEL_MASK;
 
 	/**
-     * Set the smallest needed prescaler along with PWM period for desired PWM frequency
+	 * Disable TPM for configuration
+	 */
+	TPM0->SC = 0;
+
+	/**
+     * Set the smallest needed prescaler for desired TPM period
      */
-	tpm_sc_ps = get_prescaler();
+	//tpm_sc_ps = get_prescaler(period_us);
 
 	/**
      * Load the TPM MOD register
      */
-	TPM0->MOD = 1;
+	TPM0->MOD = TPM_MOD_MOD(period_us * 24);
 
 	/**
      * Configure the TPM SC register:
-     * 	- Count up with divide by tpm_prescaler
+     * 	- Count up with divide by 2 prescaler
+     * 	- DMA transfer enable
      */
-	TPM0->SC = TPM_SC_PS(tpm_sc_ps);
+	TPM0->SC =
+		TPM_SC_DMA(SC_DMA) |
+		TPM_SC_PS(SC_PS);
 
 	/**
      * Configure the TPM CONF register:
@@ -72,47 +143,13 @@ void init_onboard_tpm(void)
      * Set initial duty cycle
      */
 	TPM0->CONTROLS[1].CnV = 0;
+}
 
+void start_onboard_tpm(void)
+{
 	/**
      * Configure the TPM SC register:
      * 	- Start TPM
      */
 	TPM0->SC |= TPM_SC_CMOD(1);
-}
-
-uint8_t get_prescaler(void)
-{
-	/**
-     * Calculate the smallest needed prescaler to allow for largest possible TPM->MOD value
-     * and thus more granular control
-     */
-
-	uint8_t return_value;
-
-	if(((F_TPM_CLOCK_HZ / PWM_FREQ_HZ) / MAX_TPM_MOD_VALUE) < 1){
-		return_value = 0;
-	}
-	else if(((F_TPM_CLOCK_HZ / PWM_FREQ_HZ) / MAX_TPM_MOD_VALUE) < 2){
-		return_value = 1;
-	}
-	else if(((F_TPM_CLOCK_HZ / PWM_FREQ_HZ) / MAX_TPM_MOD_VALUE) < 4){
-		return_value = 2;
-	}
-	else if(((F_TPM_CLOCK_HZ / PWM_FREQ_HZ) / MAX_TPM_MOD_VALUE) < 8){
-		return_value = 3;
-	}
-	else if(((F_TPM_CLOCK_HZ / PWM_FREQ_HZ) / MAX_TPM_MOD_VALUE) < 16){
-		return_value = 4;
-	}
-	else if(((F_TPM_CLOCK_HZ / PWM_FREQ_HZ) / MAX_TPM_MOD_VALUE) < 32){
-		return_value = 5;
-	}
-	else if(((F_TPM_CLOCK_HZ / PWM_FREQ_HZ) / MAX_TPM_MOD_VALUE) < 64){
-		return_value = 6;
-	}
-	else{
-		return_value = 7;
-	}
-
-	return (return_value);
 }

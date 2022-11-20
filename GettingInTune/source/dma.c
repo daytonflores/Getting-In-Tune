@@ -7,6 +7,7 @@
 
 #include "board.h"
 #include "dma.h"
+#include "tone.h"
 
 /**
  * \def		DCR_EINT
@@ -67,6 +68,17 @@
 	(2)
 
 /**
+ * \def		DCR_DINC
+ * \brief	DCR[19] which is Destination Increment
+ * \detail
+ * 		0: No change to DAR after successful transfer
+ * 		1: DAR increments by 1/2/4 (as determined by
+ * 		   transfer size) after successful transfer
+ */
+#define DCR_DINC\
+	(1)
+
+/**
  * \def		DCR_DSIZE
  * \brief	DCR[18:17] which is Destination Size
  * \detail
@@ -99,7 +111,37 @@
 #define CHCFG_SOURCE\
 	(54)
 
-void init_onboard_dma(uint16_t *source, uint32_t sample_count)
+/**
+ * \def		DSR_BCR_DONE
+ * \brief	Transactions Done flag
+ * \detail
+ * 		Clear this flag when beginning DMA
+ */
+#define DSR_BCR_DONE\
+	(1)
+
+/**
+ * \def		CHCFG_ENBL
+ * \brief	Enable flag
+ * \detail
+ * 		Set this flag to start DMA
+ */
+#define CHCFG_ENBL\
+	(1)
+
+/**
+ * \var		dma_source
+ * \brief	Pointer to beginning of source data on reload
+ */
+uint16_t *dma_source;
+
+/**
+ * \var		dma_count
+ * \brief	Number of bytes to transfer on reload
+ */
+uint32_t dma_count;
+
+void init_onboard_dma(void)
 {
 	/**
      * Enable clock to DMA
@@ -126,6 +168,7 @@ void init_onboard_dma(uint16_t *source, uint32_t sample_count)
 		DMA_DCR_CS(DCR_CS) |
 		DMA_DCR_SINC(DCR_SINC) |
 		DMA_DCR_SSIZE(DCR_SSIZE) |
+		DMA_DCR_DINC(DCR_DINC) |
 		DMA_DCR_DSIZE(DCR_DSIZE);
 
 	/**
@@ -143,4 +186,41 @@ void init_onboard_dma(uint16_t *source, uint32_t sample_count)
      * 	- To use TPM0 overflow as trigger
      */
 	DMAMUX0->CHCFG[0] = DMAMUX_CHCFG_SOURCE(CHCFG_SOURCE);
+}
+
+void start_onboard_dma(uint16_t *source, uint32_t count)
+{
+	/**
+     * Initialize:
+     * 	- Source pointer to DAC buffer
+     * 	- Destination pointer to DAC0
+     * 	- Byte count to number of bytes
+     */
+	DMA0->DMA[0].SAR = DMA_SAR_SAR((uint32_t)(source));
+	//DMA0->DMA[0].DAR = DMA_DAR_DAR((uint32_t)(&(DAC0->DAT[0])));
+	DMA0->DMA[0].DAR = DMA_DAR_DAR((uint32_t)(dac_buffer_test));
+	DMA0->DMA[0].DSR_BCR = DMA_DSR_BCR_BCR(count);
+
+	/**
+	 * Clear the Done flag
+	 */
+	DMA0->DMA[0].DSR_BCR &= ~DMA_DSR_BCR_DONE(DSR_BCR_DONE);
+
+	/**
+	 * Set the Enable flag to begin DMA transfer
+	 */
+	DMAMUX0->CHCFG[0] |= DMAMUX_CHCFG_ENBL(CHCFG_ENBL);
+}
+
+void DMA0_IRQHandler(void)
+{
+	/**
+	 * Set the Done flag
+	 */
+	DMA0->DMA[0].DSR_BCR |= DMA_DSR_BCR_DONE(DSR_BCR_DONE);
+
+    /**
+     * Begin DMA transfer
+     */
+    start_onboard_dma(dac_buffer, dac_buffer_samples << 1);
 }

@@ -93,31 +93,6 @@ int main(void) {
 #endif
 
     /**
-     * Initialize on-board DAC
-     */
-    init_onboard_dac();
-
-    /**
-     * Initialize on-board ADC
-     */
-    init_onboard_adc();
-
-    /**
-     * Initialize on-board DMA
-     */
-    init_onboard_dma(buf_adc, SAMPLE_COUNT_ADC);
-
-    /**
-     * Initialize SysTick on-board timer
-     */
-    init_onboard_tpm();
-
-    /**
-     * Initialize SysTick on-board timer
-     */
-    init_onboard_systick();
-
-    /**
      * Test sin function generated from given fp_trig.o
      */
     //test_sin();
@@ -133,12 +108,47 @@ int main(void) {
     fill_dac_buffer(current_tone);
 
     /**
+     * Initialize on-board DAC
+     */
+    init_onboard_dac();
+
+    /**
+     * Initialize on-board ADC
+     */
+    init_onboard_adc();
+
+    /**
+     * Initialize on-board DMA
+     */
+    init_onboard_dma();
+
+    /**
+     * Initialize on-board TPM for use with DMA
+     */
+    init_onboard_tpm(SAMPLE_PERIOD_DAC_US);
+
+    /**
+     * Initialize SysTick on-board timer
+     */
+    init_onboard_systick();
+
+    /**
      * Print info about current tone
      */
     printf("Generated %d samples at %d Hz. Computed period = %d samples\r\n",
     		dac_buffer_full_periods * dac_buffer_samples_per_period,
 			dac_buffer_hz,
 			dac_buffer_samples_per_period);
+
+    /**
+     * Begin TPM counter
+     */
+    start_onboard_tpm();
+
+    /**
+     * Begin DMA transfer
+     */
+    start_onboard_dma((uint16_t*)dac_buffer, dac_buffer_samples << 1);
 
     /**
      * Main infinite loop
@@ -206,9 +216,14 @@ int main(void) {
         	     * Print info about current tone
         	     */
         	    printf("Generated %d samples at %d Hz. Computed period = %d samples\r\n",
-        	    		dac_buffer_full_periods * dac_buffer_samples_per_period,
+        	    		dac_buffer_samples,
 						dac_buffer_hz,
 						dac_buffer_samples_per_period);
+
+        	    /**
+        	     * Begin DMA transfer
+        	     */
+        	    start_onboard_dma((uint16_t*)dac_buffer, dac_buffer_samples << 1);
         	}
         }
     }
