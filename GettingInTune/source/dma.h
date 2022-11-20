@@ -10,11 +10,11 @@
 
 /**
  * \fn		void init_onboard_dma
- * \param	uint8_t *source The beginning of the source data to transfer
+ * \param	uint16_t *source The beginning of the source data to transfer
  * \param	uint32_t sample_count The number of samples to transfer at a time
  * \return	N/A
  * \brief   Initialize the on-board DMA
  */
-void init_onboard_dma(uint8_t *source, uint32_t sample_count);
+void init_onboard_dma(uint16_t *source, uint32_t sample_count);
 
 #endif /* DMA_H_ */

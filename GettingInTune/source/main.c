@@ -46,13 +46,15 @@
 #include "fp_trig.h"
 #include "systick.h"
 #include "test_sine.h"
+#include "tone.h"
+#include "tpm.h"
 
 /**
  * \def		BUF_ADC_SIZE
  * \brief	Size of audio out buffer
  */
 #define BUF_ADC_SIZE\
-	(1024)
+	(1)
 
 /**
  * \def		SAMPLE_COUNT_ADC
@@ -65,10 +67,19 @@
  * \var		buf_adc
  * \brief	Buffer to hold audio out data
  */
-uint8_t buf_adc[BUF_ADC_SIZE];
+uint16_t buf_adc[BUF_ADC_SIZE];
 
-/*
- * @brief   Application entry point.
+/**
+ * \var		current_note
+ * \brief	The current_note to be send out to DAC
+ */
+tone_t current_note = A4;
+
+/**
+ * \fn		int main
+ * \param	N/A
+ * \return	EXIT_SUCCESS on success, EXIT_FAILURE otherwise
+ * \brief   Application entry point
  */
 int main(void) {
 
@@ -99,12 +110,27 @@ int main(void) {
     /**
      * Initialize SysTick on-board timer
      */
+    init_onboard_tpm();
+
+    /**
+     * Initialize SysTick on-board timer
+     */
     init_onboard_systick();
 
     /**
      * Test sin function generated from given fp_trig.o
      */
-    test_sin();
+    //test_sin();
+
+    /**
+     * Pre-compute samples for all tones
+     */
+    tone_to_samples();
+
+    /**
+     * Stuff DAC buffer with initial tone's samples until DAC buffer is full
+     */
+    fill_dac_buffer(current_note);
 
     /**
      * Main infinite loop
@@ -146,6 +172,27 @@ int main(void) {
         		/**
         		 * Change note
         		 */
+        		switch(current_note){
+        		case A4:
+        			current_note = D5;
+        			break;
+        		case D5:
+        			current_note = E5;
+        			break;
+        		case E5:
+        			current_note = A5;
+        			break;
+        		case A5:
+        			current_note = A4;
+        			break;
+        		default:
+        			break;
+        		}
+
+        	    /**
+        	     * Stuff DAC buffer with tone's samples until DAC buffer is full
+        	     */
+        	    fill_dac_buffer(current_note);
         	}
         }
     }

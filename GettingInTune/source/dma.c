@@ -82,21 +82,24 @@
  * \def		CHCFG_SOURCE
  * \brief	CHCFG[5:0] which is DMA Channel Source
  * \detail
- * 		Specifies which DMA source, if any, is routed to a
- * 		particular DMA channel. Slot numbers are specific
- * 		to device's chip
+ * 		0    : Disabled
+ * 		2-7  : UART0,1,2 (Receive, Transmit)
+ * 		16-19: SPI0, 1 (Receive, Transmit)
+ * 		22-23: I2C0, 1
+ * 		24-29: TPM0 (Channels 0-5)
+ * 		32-35: TPM1-2 (Channels 0-1)
+ * 		40   : ADC0
+ * 		42   : CMP0
+ * 		45   : DAC0
+ * 		49-53: Port Control (Ports A-E)
+ * 		54-56: TPM0-2 (Overflow)
+ * 		57   : TSI
+ * 		60-63: DMAMUX (Always enabled)
  */
 #define CHCFG_SOURCE\
-	(SLOT_TPM0_OVERFLOW)
-
-/**
- * \def		SLOT_TPM0_OVERFLOW
- * \brief	The slot number to connect DMA0 to TPM0 overflow signal
- */
-#define SLOT_TPM0_OVERFLOW\
 	(54)
 
-void init_onboard_dma(uint8_t *source, uint32_t sample_count)
+void init_onboard_dma(uint16_t *source, uint32_t sample_count)
 {
 	/**
      * Enable clock to DMA

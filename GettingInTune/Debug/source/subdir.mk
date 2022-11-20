@@ -12,7 +12,9 @@ C_SRCS += \
 ../source/mtb.c \
 ../source/semihost_hardfault.c \
 ../source/systick.c \
-../source/test_sine.c 
+../source/test_sine.c \
+../source/tone.c \
+../source/tpm.c 
 
 O_SRCS += \
 ../source/fp_trig.o 
@@ -26,7 +28,9 @@ C_DEPS += \
 ./source/mtb.d \
 ./source/semihost_hardfault.d \
 ./source/systick.d \
-./source/test_sine.d 
+./source/test_sine.d \
+./source/tone.d \
+./source/tpm.d 
 
 OBJS += \
 ./source/adc.o \
@@ -37,7 +41,9 @@ OBJS += \
 ./source/mtb.o \
 ./source/semihost_hardfault.o \
 ./source/systick.o \
-./source/test_sine.o 
+./source/test_sine.o \
+./source/tone.o \
+./source/tpm.o 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -52,7 +58,7 @@ source/%.o: ../source/%.c source/subdir.mk
 clean: clean-source
 
 clean-source:
-	-$(RM) ./source/adc.d ./source/adc.o ./source/autocorrelate.d ./source/autocorrelate.o ./source/dac.d ./source/dac.o ./source/dma.d ./source/dma.o ./source/main.d ./source/main.o ./source/mtb.d ./source/mtb.o ./source/semihost_hardfault.d ./source/semihost_hardfault.o ./source/systick.d ./source/systick.o ./source/test_sine.d ./source/test_sine.o
+	-$(RM) ./source/adc.d ./source/adc.o ./source/autocorrelate.d ./source/autocorrelate.o ./source/dac.d ./source/dac.o ./source/dma.d ./source/dma.o ./source/main.d ./source/main.o ./source/mtb.d ./source/mtb.o ./source/semihost_hardfault.d ./source/semihost_hardfault.o ./source/systick.d ./source/systick.o ./source/test_sine.d ./source/test_sine.o ./source/tone.d ./source/tone.o ./source/tpm.d ./source/tpm.o
 
 .PHONY: clean-source
 
