@@ -41,6 +41,7 @@
 #include "fsl_debug_console.h"
 /* TODO: insert other include files here. */
 #include "adc.h"
+#include "autocorrelate.h"
 #include "dac.h"
 #include "dma.h"
 #include "fp_trig.h"
@@ -125,7 +126,7 @@ int main(void) {
     /**
      * Initialize on-board TPM for use with DMA
      */
-    init_onboard_tpm(SAMPLE_PERIOD_DAC_US);
+    init_onboard_tpm(SAMPLE_PERIOD_DAC_US, SAMPLE_PERIOD_ADC_US);
 
     /**
      * Initialize SysTick on-board timer
@@ -151,9 +152,56 @@ int main(void) {
     start_onboard_dma((uint16_t*)dac_buffer, dac_buffer_samples << 1);
 
     /**
+     * Begin reading samples from ADC
+     */
+    int16_t adc_min = 0;
+    int16_t adc_max = 0;
+    int16_t adc_avg = 0;
+
+    /**
      * Main infinite loop
      */
     while(1) {
+
+    	/**
+    	 * If we still have samples to read
+    	 */
+    	if(!adc_done){
+
+        	/**
+        	 * Reset ADC buffer index and print since 1024 samples were taken
+        	 */
+        	if(adc_buffer_i >= ADC_BUF_SIZE){
+        		adc_done = true;
+        		adc_buffer_i = 0;
+        	    printf("min = %d, max = %d, avg = %d, period = %d samples, frequency = %d Hz\r\n",
+        	    		adc_min,
+						adc_max,
+						(adc_avg >> 10),
+    					0,
+						(SAMPLE_RATE_ADC_HZ / autocorrelate_detect_period(adc_buffer, ADC_BUF_SIZE, kAC_16bps_unsigned)) << 1);
+    					//(SAMPLE_RATE_ADC_HZ / autocorrelate_detect_period(adc_buffer, ADC_BUF_SIZE, kAC_16bps_signed) << 1));
+						//SAMPLE_RATE_DAC_HZ / autocorrelate_detect_period(dac_buffer, DAC_BUF_SIZE, kAC_16bps_unsigned));
+        	    adc_min = 0;
+        	    adc_max = 0;
+        	    adc_avg = 0;
+        	}
+
+            /**
+             * Begin reading a sample from ADC
+             */
+            ADC0->SC1[0] = ADC_SC1_ADCH(SC1_ADCH);
+        	while(!(ADC0->SC1[0] & ADC_SC1_COCO(1)));
+        	adc_buffer[adc_buffer_i] = (((int16_t)(ADC0->R[0])) >> 4);
+        	adc_avg += adc_buffer[adc_buffer_i];
+        	if(adc_buffer[adc_buffer_i] < adc_min){
+        		adc_min = adc_buffer[adc_buffer_i];
+        	}
+        	if(adc_buffer[adc_buffer_i] > adc_max){
+        		adc_max = adc_buffer[adc_buffer_i];
+        	}
+        	adc_buffer_i++;
+    	}
 
         /**
          * Set by SysTick_Handler every TICK_SEC
@@ -224,8 +272,15 @@ int main(void) {
         	     * Begin DMA transfer
         	     */
         	    start_onboard_dma((uint16_t*)dac_buffer, dac_buffer_samples << 1);
+
+        	    /**
+        	     * Begin ADC sampling for the new current tone
+        	     */
+        		adc_done = false;
         	}
         }
+
+
     }
     return 0 ;
 }

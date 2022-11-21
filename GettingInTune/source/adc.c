@@ -5,6 +5,7 @@
  *      Author: dayton.flores
  */
 
+#include <stdbool.h>
 #include "board.h"
 #include "adc.h"
 
@@ -123,7 +124,7 @@ void init_onboard_adc(void)
 {
 	/**
      * Enable clock to Port E
-     * Enable clock to DAC0
+     * Enable clock to ADC0
      */
 	SIM->SCGC6 |= SIM_SCGC6_ADC0_MASK;
     SIM->SCGC5 |= SIM_SCGC5_PORTE_MASK;
@@ -151,6 +152,13 @@ void init_onboard_adc(void)
 
 	/**
 	 * Configure ADC0:
+	 * 	- Input channel 23 (tied to PTE30 which is DAC output)
+	 * 	- DIFF disabled
+	 */
+    ADC0->SC1[0] = ADC_SC1_ADCH(SC1_ADCH);
+
+	/**
+	 * Configure ADC0:
 	 * 	- Software trigger
 	 * 	- Compare function disabled
 	 * 	- DMA disabled
@@ -158,4 +166,11 @@ void init_onboard_adc(void)
 	 */
     ADC0->SC2 =
     	ADC_SC2_REFSEL(SC2_REFSEL);
+
+	/**
+	 * Configure ADC0:
+	 * 	- TPM1 overflow trigger
+	 */
+    //SIM->SOPT7 &= ~SIM_SOPT7_ADC0TRGSEL(0b1111);
+    //SIM->SOPT7 |= SIM_SOPT7_ADC0TRGSEL(0b1001);
 }

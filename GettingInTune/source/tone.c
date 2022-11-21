@@ -155,6 +155,24 @@ int32_t dac_buffer_hz;
  */
 int32_t dac_buffer_samples;
 
+/**
+ * \var		adc_buffer
+ * \brief	Buffer to hold samples from ADC reading
+ */
+int16_t adc_buffer[ADC_BUF_SIZE];
+
+/**
+ * \var		adc_buffer_i
+ * \brief	Current index of ADC buffer
+ */
+int32_t adc_buffer_i = 0;
+
+/**
+ * \var		volatile bool adc_done
+ * \brief	Flag to make sure ADC only happens once during current tone
+ */
+volatile bool adc_done = false;
+
 void tone_to_samples(void)
 {
 	/**
@@ -299,5 +317,20 @@ void fill_dac_buffer(tone_t tone)
 	 */
 	default:
 		break;
+	}
+}
+
+void fill_adc_buffer(void)
+{
+	/**
+	 * Read samples into ADC buffer until it is filled up
+	 */
+	for(int i = 0; i < ADC_BUF_SIZE; i++){
+
+		ADC0->SC1[0] = 0;
+		while(!(ADC0->SC1[0] & ADC_SC1_COCO(1)));
+
+		adc_buffer[i] = ADC0->R[0];
+		//printf("adc %d %d\r\n", i, adc_buffer[i]);
 	}
 }

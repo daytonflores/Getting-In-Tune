@@ -12,6 +12,7 @@
  * User-defined libraries
  */
 #include "bitops.h"
+#include "tone.h"
 #include "tpm.h"
 
 /**
@@ -83,12 +84,13 @@
  */
 uint8_t tpm_sc_ps;
 
-void init_onboard_tpm(uint32_t period_us)
+void init_onboard_tpm(uint32_t dac_period_us, uint32_t adc_period_us)
 {
 	/**
 	 * Enable clock to TPM module
 	 */
 	SIM->SCGC6 |= SIM_SCGC6_TPM0_MASK;
+	SIM->SCGC6 |= SIM_SCGC6_TPM1_MASK;
 
 	/**
      * Configure SOPT2:
@@ -103,6 +105,7 @@ void init_onboard_tpm(uint32_t period_us)
 	 * Disable TPM for configuration
 	 */
 	TPM0->SC = 0;
+	TPM1->SC = 0;
 
 	/**
      * Set the smallest needed prescaler for desired TPM period
@@ -112,15 +115,19 @@ void init_onboard_tpm(uint32_t period_us)
 	/**
      * Load the TPM MOD register
      */
-	TPM0->MOD = TPM_MOD_MOD(period_us * 24);
+	TPM0->MOD = TPM_MOD_MOD(dac_period_us * 24);
+	TPM1->MOD = TPM_MOD_MOD(adc_period_us * 24);
 
 	/**
      * Configure the TPM SC register:
      * 	- Count up with divide by 2 prescaler
-     * 	- DMA transfer enable
+     * 	- DMA transfer enable (for DAC's TPM0 only)
      */
 	TPM0->SC =
 		TPM_SC_DMA(SC_DMA) |
+		TPM_SC_PS(SC_PS);
+	TPM1->SC =
+		//TPM_SC_DMA(SC_DMA) |
 		TPM_SC_PS(SC_PS);
 
 	/**
@@ -128,6 +135,7 @@ void init_onboard_tpm(uint32_t period_us)
      * 	- Continue counting operation in debug mode
      */
 	TPM0->CONF |= TPM_CONF_DBGMODE(TPM_DBGMODE);
+	TPM1->CONF |= TPM_CONF_DBGMODE(TPM_DBGMODE);
 
 	/**
      * Configure TPM CnSC:
@@ -137,12 +145,24 @@ void init_onboard_tpm(uint32_t period_us)
 	TPM0->CONTROLS[1].CnSC =
 		TPM_CnSC_MSB_MASK |
 		TPM_CnSC_ELSA_MASK;
+	TPM1->CONTROLS[1].CnSC =
+		TPM_CnSC_MSB_MASK |
+		TPM_CnSC_ELSA_MASK;
 
 
 	/**
      * Set initial duty cycle
      */
 	TPM0->CONTROLS[1].CnV = 0;
+	TPM1->CONTROLS[1].CnV = 0;
+
+	/**
+	 * Enable interrupt for ADC's TPM1
+	 */
+	//TPM1->SC |= TPM_SC_TOIE_MASK;
+	NVIC_SetPriority(TPM1_IRQn, 128); // 0, 64, 128 or 192
+	NVIC_ClearPendingIRQ(TPM1_IRQn);
+	NVIC_EnableIRQ(TPM1_IRQn);
 }
 
 void start_onboard_tpm(void)
@@ -152,4 +172,10 @@ void start_onboard_tpm(void)
      * 	- Start TPM
      */
 	TPM0->SC |= TPM_SC_CMOD(1);
+	TPM1->SC |= TPM_SC_CMOD(1);
+}
+
+void TPM1_IRQHandler(void)
+{
+	//adc_done = false;
 }

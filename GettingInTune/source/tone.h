@@ -16,6 +16,13 @@
 	(1024)
 
 /**
+ * \def		ADC_BUF_SIZE
+ * \brief	Size of the ADC sample buffer for each tone
+ */
+#define ADC_BUF_SIZE\
+	(1024)
+
+/**
  * \typedef	typedef enum tone_e tone_t
  * \brief   Easily declare musical tones
  */
@@ -64,6 +71,24 @@ extern int32_t dac_buffer_hz;
 extern int32_t dac_buffer_samples;
 
 /**
+ * \var		adc_buffer
+ * \brief	Defined in tone.c
+ */
+extern int16_t adc_buffer[ADC_BUF_SIZE];
+
+/**
+ * \var		adc_buffer_i
+ * \brief	Defined in tone.c
+ */
+extern int32_t adc_buffer_i;
+
+/**
+ * \var		volatile bool adc_done
+ * \brief	Defined in tone.c
+ */
+extern volatile bool adc_done;
+
+/**
  * \fn		void tone_to_samples
  * \param	N/A
  * \return	N/A
@@ -82,5 +107,13 @@ void tone_to_samples(void);
  * 			DAC buffer is filled up
  */
 void fill_dac_buffer(tone_t tone);
+
+/**
+ * \fn		void fill_adc_buffer
+ * \param	N/A
+ * \return	N/A
+ * \brief   Fills ADC buffer with readings from ADC
+ */
+void fill_adc_buffer(void);
 
 #endif /* TONE_H_ */

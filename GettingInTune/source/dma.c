@@ -168,7 +168,7 @@ void init_onboard_dma(void)
 		DMA_DCR_CS(DCR_CS) |
 		DMA_DCR_SINC(DCR_SINC) |
 		DMA_DCR_SSIZE(DCR_SSIZE) |
-		DMA_DCR_DINC(DCR_DINC) |
+		//DMA_DCR_DINC(DCR_DINC) |
 		DMA_DCR_DSIZE(DCR_DSIZE);
 
 	/**
@@ -197,8 +197,8 @@ void start_onboard_dma(uint16_t *source, uint32_t count)
      * 	- Byte count to number of bytes
      */
 	DMA0->DMA[0].SAR = DMA_SAR_SAR((uint32_t)(source));
-	//DMA0->DMA[0].DAR = DMA_DAR_DAR((uint32_t)(&(DAC0->DAT[0])));
-	DMA0->DMA[0].DAR = DMA_DAR_DAR((uint32_t)(dac_buffer_test));
+	DMA0->DMA[0].DAR = DMA_DAR_DAR((uint32_t)(&(DAC0->DAT[0])));
+	//DMA0->DMA[0].DAR = DMA_DAR_DAR((uint32_t)(dac_buffer_test));
 	DMA0->DMA[0].DSR_BCR = DMA_DSR_BCR_BCR(count);
 
 	/**
