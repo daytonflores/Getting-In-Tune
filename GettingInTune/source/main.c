@@ -51,26 +51,6 @@
 #include "tpm.h"
 
 /**
- * \def		BUF_ADC_SIZE
- * \brief	Size of audio out buffer
- */
-#define BUF_ADC_SIZE\
-	(1)
-
-/**
- * \def		SAMPLE_COUNT_ADC
- * \brief	The number of samples to transfer at a time
- */
-#define SAMPLE_COUNT_ADC\
-	(100)
-
-/**
- * \var		buf_adc
- * \brief	Buffer to hold audio out data
- */
-int16_t buf_adc[BUF_ADC_SIZE];
-
-/**
  * \var		current_tone
  * \brief	The current_tone to be send out to DAC
  */
@@ -180,8 +160,6 @@ int main(void) {
 						(adc_avg >> 10),
 						((autocorrelate_detect_period(adc_buffer, ADC_BUF_SIZE, kAC_16bps_unsigned)) >> 1),
 						(SAMPLE_RATE_ADC_HZ / autocorrelate_detect_period(adc_buffer, ADC_BUF_SIZE, kAC_16bps_unsigned)) << 1);
-    					//(SAMPLE_RATE_ADC_HZ / autocorrelate_detect_period(adc_buffer, ADC_BUF_SIZE, kAC_16bps_signed) << 1));
-						//SAMPLE_RATE_DAC_HZ / autocorrelate_detect_period(dac_buffer, DAC_BUF_SIZE, kAC_16bps_unsigned));
         	    adc_min = 0;
         	    adc_max = 0;
         	    adc_avg = 0;
@@ -192,7 +170,6 @@ int main(void) {
              */
             ADC0->SC1[0] = ADC_SC1_ADCH(SC1_ADCH);
         	while(!(ADC0->SC1[0] & ADC_SC1_COCO(1)));
-        	//adc_buffer[adc_buffer_i] = (((int16_t)(ADC0->R[0])) >> 4);
         	adc_buffer[adc_buffer_i] = ((int16_t)(ADC0->R[0]));
         	adc_avg += adc_buffer[adc_buffer_i];
         	if(adc_buffer[adc_buffer_i] < adc_min){
