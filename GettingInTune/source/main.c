@@ -68,7 +68,7 @@
  * \var		buf_adc
  * \brief	Buffer to hold audio out data
  */
-uint16_t buf_adc[BUF_ADC_SIZE];
+int16_t buf_adc[BUF_ADC_SIZE];
 
 /**
  * \var		current_tone
@@ -154,9 +154,9 @@ int main(void) {
     /**
      * Begin reading samples from ADC
      */
-    int16_t adc_min = 0;
-    int16_t adc_max = 0;
-    int16_t adc_avg = 0;
+    int32_t adc_min = 0;
+    int32_t adc_max = 0;
+    int32_t adc_avg = 0;
 
     /**
      * Main infinite loop
@@ -174,11 +174,11 @@ int main(void) {
         	if(adc_buffer_i >= ADC_BUF_SIZE){
         		adc_done = true;
         		adc_buffer_i = 0;
-        	    printf("min = %d, max = %d, avg = %d, period = %d samples, frequency = %d Hz\r\n",
+        	    printf("min = %d, max = %d, avg = %d, period = %d samples, frequency = %d Hz\r\n\n",
         	    		adc_min,
 						adc_max,
 						(adc_avg >> 10),
-    					0,
+						((autocorrelate_detect_period(adc_buffer, ADC_BUF_SIZE, kAC_16bps_unsigned)) >> 1),
 						(SAMPLE_RATE_ADC_HZ / autocorrelate_detect_period(adc_buffer, ADC_BUF_SIZE, kAC_16bps_unsigned)) << 1);
     					//(SAMPLE_RATE_ADC_HZ / autocorrelate_detect_period(adc_buffer, ADC_BUF_SIZE, kAC_16bps_signed) << 1));
 						//SAMPLE_RATE_DAC_HZ / autocorrelate_detect_period(dac_buffer, DAC_BUF_SIZE, kAC_16bps_unsigned));
@@ -192,7 +192,8 @@ int main(void) {
              */
             ADC0->SC1[0] = ADC_SC1_ADCH(SC1_ADCH);
         	while(!(ADC0->SC1[0] & ADC_SC1_COCO(1)));
-        	adc_buffer[adc_buffer_i] = (((int16_t)(ADC0->R[0])) >> 4);
+        	//adc_buffer[adc_buffer_i] = (((int16_t)(ADC0->R[0])) >> 4);
+        	adc_buffer[adc_buffer_i] = ((int16_t)(ADC0->R[0]));
         	adc_avg += adc_buffer[adc_buffer_i];
         	if(adc_buffer[adc_buffer_i] < adc_min){
         		adc_min = adc_buffer[adc_buffer_i];
