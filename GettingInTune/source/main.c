@@ -76,7 +76,8 @@ int main(void) {
     /**
      * Test sin function generated from given fp_trig.o
      */
-    //test_sin();
+    test_sin();
+    printf("\n");
 
     /**
      * Pre-compute samples for all tones
